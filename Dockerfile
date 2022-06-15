@@ -1,12 +1,17 @@
-FROM alpine:edge
+FROM debian:sid
 
-RUN apk update && \
-    apk add --no-cache ca-certificates caddy tor wget && \
-    wget -qO- https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip | busybox unzip - && \
-    chmod +x /xray && \
-    rm -rf /var/cache/apk/*
+RUN set -ex\
+    && apt update -y \
+    && apt upgrade -y \
+    && apt install -y wget unzip qrencode\
+    && apt install -y shadowsocks-libev\
+    && apt install -y nginx\
+    && apt autoremove -y
 
-ADD start.sh /start.sh
-RUN chmod +x /start.sh
 
-CMD /start.sh
+COPY conf/ /conf
+COPY entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
+CMD /entrypoint.sh
